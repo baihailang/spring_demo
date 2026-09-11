@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UserMapper">
+
+    <sql id="Base_Column_List">
+        username, password, phone, email, created, updated, nick_name, name
+    </sql>
+
+    <select id="selectList" resultType="com.example.demo.entity.User">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_user
+        <where>
+            <if test="username != null and username != ''">
+                AND username = #{username}
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone = #{phone}
+            </if>
+            <if test="nickName != null and nickName != ''">
+                AND nick_name LIKE CONCAT('%', #{nickName}, '%')
+            </if>
+        </where>
+        ORDER BY created DESC
+    </select>
+
+    <select id="selectByUsername" resultType="com.example.demo.entity.User">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_user
+        WHERE username = #{username}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO tb_user (username, password, phone, email, created, updated, nick_name, name)
+        VALUES (#{username}, #{password}, #{phone}, #{email}, #{created}, #{updated}, #{nickName}, #{name})
+    </insert>
+
+    <update id="update">
+        UPDATE tb_user
+        <set>
+            <if test="password != null and password != ''">password = #{password},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="email != null and email != ''">email = #{email},</if>
+            <if test="nickName != null and nickName != ''">nick_name = #{nickName},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            updated = #{updated}
+        </set>
+        WHERE username = #{username}
+    </update>
+
+    <delete id="deleteByUsername">
+        DELETE FROM tb_user WHERE username = #{username}
+    </delete>
+
+</mapper>
