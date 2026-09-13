@@ -1,6 +1,6 @@
 spring:
   application:
-    name: demo
+    name: user-service
 nacos:
   server-addr: 192.168.187.128:8848
   context-path: /nacos

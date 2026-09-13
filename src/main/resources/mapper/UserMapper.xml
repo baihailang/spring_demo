@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.demo.mapper.UserMapper">
+<mapper namespace="com.baihailang.userservice.mapper.UserMapper">
 
     <sql id="Base_Column_List">
         username, password, phone, email, created, updated, nick_name, name
@@ -10,7 +10,7 @@
         username, password, phone, email, created, updated, nick_name, name
     </sql>
 
-    <select id="selectList" resultType="com.example.demo.entity.User">
+    <select id="selectList" resultType="com.baihailang.userservice.entity.User">
         SELECT
         <include refid="Base_Column_List"/>
         FROM tb_user
@@ -28,7 +28,7 @@
         ORDER BY created DESC
     </select>
 
-    <select id="selectByUsername" resultType="com.example.demo.entity.User">
+    <select id="selectByUsername" resultType="com.baihailang.userservice.entity.User">
         SELECT
         <include refid="Base_Column_List"/>
         FROM tb_user
