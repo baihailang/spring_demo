@@ -5,6 +5,7 @@ import com.example.demo.entity.User;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.config.RedisConfig;
 import com.example.demo.service.impl.UserServiceImpl;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -102,14 +103,19 @@ class UserCacheIntegrationTests {
     void listQueryIsCachedPerCondition() {
         userMapper.stored = user("alice");
 
-        assertEquals(1, userService.queryUsers(null).size());
-        assertEquals(1, userService.queryUsers(null).size());
+        assertEquals(1, userService.queryUsers(null, 1, 10).getRecords().size());
+        assertEquals(1, userService.queryUsers(null, 1, 10).getRecords().size());
         assertEquals(1, userMapper.selectListCalls.get());
+
+        userService.queryUsers(null, 2, 10);
+        assertEquals(2, userMapper.selectListCalls.get());
+        assertEquals(2, userMapper.lastCurrent);
+        assertEquals(10, userMapper.lastPageSize);
 
         User condition = new User();
         condition.setUsername("alice");
-        userService.queryUsers(condition);
-        assertEquals(2, userMapper.selectListCalls.get());
+        userService.queryUsers(condition, 1, 10);
+        assertEquals(3, userMapper.selectListCalls.get());
     }
 
     private void clearCache() {
@@ -142,16 +148,22 @@ class UserCacheIntegrationTests {
 
         final AtomicInteger selectByUsernameCalls = new AtomicInteger();
         final AtomicInteger selectListCalls = new AtomicInteger();
+        long lastCurrent;
+        long lastPageSize;
         User stored;
 
         @Override
-        public List<User> selectList(User user) {
+        public Page<User> selectList(Page<User> page, User user) {
             selectListCalls.incrementAndGet();
+            lastCurrent = page.getCurrent();
+            lastPageSize = page.getSize();
             List<User> result = new ArrayList<>();
             if (stored != null) {
                 result.add(stored);
             }
-            return result;
+            page.setRecords(result);
+            page.setTotal(result.size());
+            return page;
         }
 
         @Override

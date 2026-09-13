@@ -2,6 +2,7 @@ package com.example.demo;
 
 import com.example.demo.cache.CacheNullValue;
 import com.example.demo.entity.User;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -20,6 +21,7 @@ class CacheSerializerTests {
     private final RedisSerializer<Object> serializer = GenericJacksonJsonRedisSerializer.create(builder ->
             builder.enableDefaultTyping(BasicPolymorphicTypeValidator.builder()
                     .allowIfSubType("com.example.demo")
+                    .allowIfSubType("com.baomidou.mybatisplus")
                     .allowIfSubType("java.util")
                     .allowIfSubType("java.time")
                     .build()));
@@ -50,5 +52,22 @@ class CacheSerializerTests {
 
         Object restoredNull = serializer.deserialize(serializer.serialize(new CacheNullValue()));
         assertInstanceOf(CacheNullValue.class, restoredNull);
+    }
+
+    @Test
+    void roundTripsPage() {
+        User user = new User();
+        user.setUsername("carol");
+        Page<User> page = new Page<>(2, 10, 21);
+        page.setRecords(new ArrayList<>(List.of(user)));
+
+        Object restored = serializer.deserialize(serializer.serialize(page));
+
+        assertInstanceOf(Page.class, restored);
+        Page<?> restoredPage = (Page<?>) restored;
+        assertEquals(2, restoredPage.getCurrent());
+        assertEquals(10, restoredPage.getSize());
+        assertEquals(21, restoredPage.getTotal());
+        assertEquals("carol", ((User) restoredPage.getRecords().get(0)).getUsername());
     }
 }

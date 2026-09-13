@@ -1,12 +1,11 @@
 package com.example.demo.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.entity.User;
-
-import java.util.List;
 
 public interface UserService {
 
-    List<User> queryUsers(User user);
+    Page<User> queryUsers(User user, int page, int pageSize);
 
     User getByUsername(String username);
 

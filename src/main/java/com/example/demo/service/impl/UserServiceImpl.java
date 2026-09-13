@@ -5,6 +5,7 @@ import com.example.demo.constant.CacheConstants;
 import com.example.demo.entity.User;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.service.UserService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,7 +16,6 @@ import org.springframework.util.DigestUtils;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -39,15 +39,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> queryUsers(User user) {
-        String key = listCacheKey(user);
-        List<User> cached = getList(key);
+    public Page<User> queryUsers(User user, int page, int pageSize) {
+        String key = listCacheKey(user, page, pageSize);
+        Page<User> cached = getPage(key);
         if (cached != null) {
             return cached;
         }
-        List<User> users = userMapper.selectList(user);
-        put(key, users, randomTtl(LIST_TTL));
-        return users;
+        Page<User> result = userMapper.selectList(new Page<>(page, pageSize), user);
+        put(key, result, randomTtl(LIST_TTL));
+        return result;
     }
 
     @Override
@@ -94,10 +94,10 @@ public class UserServiceImpl implements UserService {
         return rows;
     }
 
-    private String listCacheKey(User user) {
+    private String listCacheKey(User user, int page, int pageSize) {
         String condition = user == null ? "all"
                 : nullSafe(user.getUsername()) + '|' + nullSafe(user.getPhone()) + '|' + nullSafe(user.getNickName());
-        String hash = DigestUtils.md5DigestAsHex(condition.getBytes(StandardCharsets.UTF_8));
+        String hash = DigestUtils.md5DigestAsHex((condition + '|' + page + '|' + pageSize).getBytes(StandardCharsets.UTF_8));
         return CacheConstants.USER_LIST_PREFIX + listVersion() + ':' + hash;
     }
 
@@ -116,9 +116,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @SuppressWarnings("unchecked")
-    private List<User> getList(String key) {
+    private Page<User> getPage(String key) {
         Object cached = get(key);
-        return cached instanceof List<?> list ? (List<User>) list : null;
+        return cached instanceof Page<?> page ? (Page<User>) page : null;
     }
 
     private Object get(String key) {

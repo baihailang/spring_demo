@@ -12,14 +12,14 @@
         <include refid="Base_Column_List"/>
         FROM tb_user
         <where>
-            <if test="username != null and username != ''">
-                AND username = #{username}
+            <if test="user != null and user.username != null and user.username != ''">
+                AND username = #{user.username}
             </if>
-            <if test="phone != null and phone != ''">
-                AND phone = #{phone}
+            <if test="user != null and user.phone != null and user.phone != ''">
+                AND phone = #{user.phone}
             </if>
-            <if test="nickName != null and nickName != ''">
-                AND nick_name LIKE CONCAT('%', #{nickName}, '%')
+            <if test="user != null and user.nickName != null and user.nickName != ''">
+                AND nick_name LIKE CONCAT('%', #{user.nickName}, '%')
             </if>
         </where>
         ORDER BY created DESC

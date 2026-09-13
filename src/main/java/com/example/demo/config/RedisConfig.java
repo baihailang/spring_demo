@@ -21,6 +21,7 @@ public class RedisConfig {
         StringRedisSerializer keySerializer = new StringRedisSerializer();
         PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType("com.example.demo")
+                .allowIfSubType("com.baomidou.mybatisplus")
                 .allowIfSubType("java.util")
                 .allowIfSubType("java.time")
                 .build();
