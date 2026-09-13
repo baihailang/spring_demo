@@ -6,6 +6,9 @@
     <sql id="Base_Column_List">
         username, password, phone, email, created, updated, nick_name, name
     </sql>
+    <sql id="Insert_column_list">
+        username, password, phone, email, created, updated, nick_name, name
+    </sql>
 
     <select id="selectList" resultType="com.example.demo.entity.User">
         SELECT
@@ -33,7 +36,7 @@
     </select>
 
     <insert id="insert">
-        INSERT INTO tb_user (username, password, phone, email, created, updated, nick_name, name)
+        INSERT INTO tb_user (<include refid="Insert_column_list"/>)
         VALUES (#{username}, #{password}, #{phone}, #{email}, #{created}, #{updated}, #{nickName}, #{name})
     </insert>
 
